@@ -1,39 +1,3 @@
-# from pathlib import Path
-# import requests
-
-
-
-# path_baac = Path("data/raw/baac")
-
-# DATASET_URL = (
-#     "https://www.data.gouv.fr/datasets/bases-de-donnees-annuelles-des-accidents-corporels-de-la-circulation-routiere-annees-de-2005-a-2024"
-# )
-
-
-# def main():
-
-#     for year in range(2020, 2025):
-
-#         folder = path_baac / str(year)
-#         folder.mkdir(parents=True, exist_ok=True)
-
-#         print(f"\nannée {year}")
-
-#         response = requests.get(DATASET_URL)
-
-#         if response.status_code == 200:
-#             print("Source BAAC accessible ")
-#         else:
-#             print("Erreur ")
-#             print(response.status_code)
-
-
-# if __name__ == "__main__":
-#     main()
-
-
-
-
 
 from pathlib import Path
 from datetime import datetime
