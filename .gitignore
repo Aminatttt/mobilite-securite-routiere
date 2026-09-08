@@ -216,3 +216,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+
+
+# Raw data
+data/raw/
+
+# Clean data
+data/clean/
+
+# Curated data
+data/curated/
+
+# Models
+*.pkl
+*.joblib
+
+# Project logs
+logs/*.log
