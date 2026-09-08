@@ -220,9 +220,13 @@ __marimo__/
 
 
 
-# Raw data files
-data/raw/*
+# Raw data: ignore all files recursively
+data/raw/**
+
+# Keep the folders visible in Git
 !data/raw/**/
+
+# Keep .gitkeep files
 !data/raw/**/.gitkeep
 
 # Clean data
