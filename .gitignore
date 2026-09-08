@@ -220,8 +220,10 @@ __marimo__/
 
 
 
-# Raw data
-data/raw/
+# Raw data files
+data/raw/*
+!data/raw/**/
+!data/raw/**/.gitkeep
 
 # Clean data
 data/clean/
