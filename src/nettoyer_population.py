@@ -4,7 +4,7 @@ import pandas as pd
 # 1. Définir les chemins d'accès aux dossiers
 dossier_script = os.path.dirname(os.path.abspath(__file__))
 dossier_entree = os.path.join(dossier_script, "..", "data", "raw", "population")
-dossier_sortie = os.path.join(dossier_script, "..", "data", "processed")
+dossier_sortie = os.path.join(dossier_script, "..", "data", "curated")
 
 # S'assurer que le dossier de sortie existe
 os.makedirs(dossier_sortie, exist_ok=True)
