@@ -1,5 +1,6 @@
 # Etape 1
 import requests
+from datetime import date
 
 DATASET_ID = "53698f4ca3a729239d2036df"
 url_api = f"https://www.data.gouv.fr/api/1/datasets/{DATASET_ID}/"
@@ -41,6 +42,10 @@ import os
 
 dossier_script = os.path.dirname(os.path.abspath(__file__))
 dossier_raw = os.path.join(dossier_script, "data", "raw", "baac")
+os.makedirs(dossier_raw, exist_ok=True)
+
+date_du_jour = date.today().isoformat()
+dossier_raw = os.path.join(dossier_raw, date_du_jour)
 os.makedirs(dossier_raw, exist_ok=True)
 
 for f in fichiers_baac:
