@@ -1,11 +1,15 @@
 import requests
 import os
 from datetime import date
+from utils_log import creer_logger
 
 dossier_script = os.path.dirname(os.path.abspath(__file__))
+logger = creer_logger("telecharger_meteo", dossier_script)
+
 dossier_raw = os.path.join(dossier_script, "data", "raw", "meteo")
 os.makedirs(dossier_raw, exist_ok=True)
 
+# Créer l'arborescence RAW horodatée (par source / par année)
 date_du_jour = date.today().isoformat()
 dossier_raw = os.path.join(dossier_raw, date_du_jour)
 os.makedirs(dossier_raw, exist_ok=True)
@@ -17,10 +21,10 @@ fichiers_meteo = {
 
 for nom_fichier, url in fichiers_meteo.items():
     chemin_destination = os.path.join(dossier_raw, nom_fichier)
-    print(f"Téléchargement de {nom_fichier}...")
+    logger.info(f"Téléchargement de {nom_fichier}...")
     r = requests.get(url)
     with open(chemin_destination, "wb") as f:
         f.write(r.content)
-    print(f"  -> enregistré dans {chemin_destination}")
+    logger.info(f"  -> enregistré dans {chemin_destination}")
 
-print("\nTéléchargement météo terminé.")
+logger.info("Téléchargement météo terminé.")
