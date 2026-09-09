@@ -10,16 +10,18 @@ depuis 2010) et la disponibilité confirmée des 5 sources nécessaires (voir `P
 
 ## Architecture du dépôt
 
-├── PROJET/ → catalogue de sourcing
+```
+├── PROJET/          → catalogue de sourcing
 ├── data/
-│ ├── raw/ → données brutes horodatées, non versionnées (voir .gitignore)
-│ ├── curated/ → données nettoyées (Phase 2, à venir)
-│ └── sample/ → échantillons légers versionnés, pour consultation rapide
-├── docs/ → suivi de projet, cahier des charges
-├── src/ → scripts d'acquisition et utilitaires
-├── notebooks/ → analyses (à venir, Phase 4-5)
-├── sql/ → schéma de base de données (à venir, Phase 3)
-└── dashboard/ → dashboard final (à venir, Phase 4)
+│   ├── raw/          → données brutes horodatées, non versionnées (voir .gitignore)
+│   ├── curated/       → données nettoyées (Phase 2, à venir)
+│   └── sample/        → échantillons légers versionnés, pour consultation rapide
+├── docs/           → suivi de projet, cahier des charges
+├── src/            → scripts d'acquisition et utilitaires
+├── notebooks/        → analyses (à venir, Phase 4-5)
+├── sql/            → schéma de base de données (à venir, Phase 3)
+└── dashboard/         → dashboard final (à venir, Phase 4)
+```
 
 
 ## Prérequis / installation
