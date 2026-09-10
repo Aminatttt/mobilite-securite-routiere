@@ -5,23 +5,31 @@ comprendre les facteurs associés aux accidents corporels à Paris et estimer le
 gravité d'un accident à partir du contexte routier, temporel, météorologique et territorial.
 
 ## Territoire retenu
+
 Paris — justifié par la richesse de son historique de données trafic (capteurs permanents
-depuis 2010) et la disponibilité confirmée des 5 sources nécessaires (voir `PROJET/Catalogue_final.xlsx`).
+depuis 2010) et la disponibilité confirmée des 5 sources nécessaires (voir `catalogue/Catalogue_final.xlsx`).
+
+## Suivi du projet
+
+- `PROGRESSION.md` (racine du dépôt) : avancement des 7 grandes phases, vue d'ensemble rapide
+- `docs/SUIVI_PROJET_LIEN.md` : lien vers le suivi détaillé, partagé et modifiable par toute l'équipe sur OneDrive
 
 ## Architecture du dépôt
-
-```
-├── PROJET/          → catalogue de sourcing
+├── PROGRESSION.md → suivi des 7 phases (vue rapide)
+├── catalogue/
+│ └── Catalogue_final.xlsx → catalogue de sourcing (source unique de référence)
 ├── data/
-│   ├── raw/          → données brutes horodatées, non versionnées (voir .gitignore)
-│   ├── curated/       → données nettoyées (Phase 2, à venir)
-│   └── sample/        → échantillons légers versionnés, pour consultation rapide
-├── docs/           → suivi de projet, cahier des charges
-├── src/            → scripts d'acquisition et utilitaires
-├── notebooks/        → analyses (à venir, Phase 4-5)
-├── sql/            → schéma de base de données (à venir, Phase 3)
-└── dashboard/         → dashboard final (à venir, Phase 4)
-```
+│ ├── raw/ → données brutes horodatées, non versionnées (voir .gitignore)
+│ ├── curated/ → données nettoyées (Phase 2, en cours)
+│ └── sample/ → échantillons légers versionnés, pour consultation rapide
+├── docs/
+│ ├── cahier_des_charges.pdf
+│ ├── Feuille_de_route_projet.pdf
+│ └── SUIVI_PROJET_LIEN.md → lien vers le suivi détaillé (OneDrive)
+├── src/ → scripts d'acquisition, de nettoyage et utilitaires
+├── notebooks/ → analyses (à venir, Phase 4-5)
+├── sql/ → schéma de base de données (à venir, Phase 3)
+└── dashboard/ → dashboard final (à venir, Phase 4)
 
 
 ## Prérequis / installation
@@ -44,15 +52,24 @@ python telecharger_meteo.py
 python telecharger_population.py
 
 
-Chaque script crée automatiquement son arborescence dans `data/raw/<source>/<date_du_jour>/`
-et journalise son exécution dans `src/logs/<nom_du_script>.log`.
+Chaque script détecte automatiquement la racine du projet (via le dossier `.git`) et crée
+son arborescence dans `data/raw/<source>/<date_du_jour>/`. L'exécution est journalisée dans
+`src/logs/<nom_du_script>.log`.
 
-Pour créer un échantillon léger (versionné sur GitHub) : `python creer_echantillon.py`
-(adapter les chemins horodatés en haut du script si besoin).
+Pour créer un échantillon léger (versionné sur GitHub) : `python creer_echantillon.py`.
+
+## Nettoyage des données (Phase 2)
+
+Depuis `src/`, chaque script `nettoyer_*.py` lit la version la plus récente des données RAW
+et produit des fichiers propres dans `data/curated/<source>/` :
+python nettoyer_baac.py
+python nettoyer_trafic.py
+python nettoyer_population.py
+
 
 ## Sources de données
 
-Résumé — détail complet dans `PROJET/Catalogue_final.xlsx` :
+Résumé — détail complet dans `catalogue/Catalogue_final.xlsx` :
 
 | Source | Producteur | Période | Méthode |
 |---|---|---|---|
@@ -62,7 +79,7 @@ Résumé — détail complet dans `PROJET/Catalogue_final.xlsx` :
 | Météo (dept. 75) | Météo-France | 1950-2024 | Téléchargement scripté |
 | Population de référence | INSEE | 2023 | Téléchargement scripté (ZIP) |
 
-## Limites connues (à date — Phase 1 terminée)
+## Limites connues (à date)
 
 - Noms de fichiers BAAC incohérents selon les années (`caracteristiques-2020`,
   `caract-2023/2024`, `carcteristiques-2021/2022` — faute de frappe côté source) et
@@ -71,19 +88,30 @@ Résumé — détail complet dans `PROJET/Catalogue_final.xlsx` :
   extraction manuelle via 7-Zip nécessaire.
 - Population : millésime 2023 utilisé comme approximation pour 2024 (dernière donnée
   officielle disponible, écart jugé négligeable sur un an).
-- Encodage des fichiers BAAC à vérifier/corriger en Phase 2 (accents mal interprétés
-  observés sur certains fichiers).
-- Référentiel géographique : coordonnées à reprojeter (Lambert 93 → WGS84) en Phase 2.
+- Encodage des fichiers BAAC corrigé en Phase 2 (`latin-1` pour les fichiers BAAC
+  standards ; le fichier véhicules immatriculés nécessitait `utf-8`, non résolu — voir
+  point suivant).
+- Fichier `vehicules-immatricule-baac-2024` exclu du pipeline : sa clé de jointure
+  (`Id_accident`, ex. "67 230 442") ne correspond à aucun format compatible avec `Num_Acc`
+  des autres fichiers BAAC (ex. 202400000011), et aucune table de correspondance officielle
+  n'a été trouvée sur data.gouv.fr. Le fichier `vehicules` standard (colonne `catv`) fournit
+  déjà une catégorisation suffisante des véhicules impliqués.
+- Fichier `lieux` : plusieurs lignes par accident lorsque celui-ci s'est produit à une
+  intersection (2 voies enregistrées séparément) — traité en gardant la première voie et
+  en ajoutant un indicateur booléen `intersection` (64 % des accidents parisiens 2024
+  concernés).
+- Référentiel géographique : coordonnées à vérifier/reprojeter si nécessaire en Phase 2.
 
 ## Journal de contribution
 
-Voir `docs/SUIVI_PROJET.xlsx` pour la répartition des tâches et l'avancement par membre.
+Voir `docs/SUIVI_PROJET_LIEN.md` (fichier partagé sur OneDrive) pour la répartition des
+tâches et l'avancement par membre.
 
 ## État d'avancement
 
 - [x] Phase 0 — Sourcing & faisabilité
 - [x] Phase 1 — Acquisition & stockage RAW
-- [ ] Phase 2 — ETL & qualité
+- [ ] Phase 2 — ETL & qualité (en cours — BAAC terminé)
 - [ ] Phase 3 — Intégration & modèle de données
 - [ ] Phase 4 — Analyse & data visualisation
 - [ ] Phase 5 — Intelligence artificielle

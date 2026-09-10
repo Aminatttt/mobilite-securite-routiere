@@ -17,3 +17,5 @@ data/curated/**/*.parquet
 src/logs/
 **/__pycache__/
 *.log
+
+docs/SUIVI_PROJET.xlsx
