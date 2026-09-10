@@ -1,3 +1,7 @@
+# Sécurité supplémentaire : ignore tout dossier data/ où qu'il apparaisse
+**/data/raw/
+**/data/curated/
+
 # Données brutes et intermédiaires (trop volumineuses pour Git)
 data/raw/**/*.csv
 data/raw/**/*.txt

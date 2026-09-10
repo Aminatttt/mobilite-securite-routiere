@@ -3,10 +3,19 @@ import os
 from datetime import date
 from utils_log import creer_logger
 
+def trouver_racine_projet(depart):
+    dossier = depart
+    while dossier != os.path.dirname(dossier):
+        if os.path.exists(os.path.join(dossier, ".git")):
+            return dossier
+        dossier = os.path.dirname(dossier)
+    raise FileNotFoundError("Racine du projet introuvable")
+
 dossier_script = os.path.dirname(os.path.abspath(__file__))
 logger = creer_logger("telecharger_meteo", dossier_script)
 
-dossier_raw = os.path.join(dossier_script, "data", "raw", "meteo")
+racine_projet = trouver_racine_projet(dossier_script)
+dossier_raw = os.path.join(racine_projet, "data", "raw", "meteo")
 os.makedirs(dossier_raw, exist_ok=True)
 
 # Créer l'arborescence RAW horodatée (par source / par année)

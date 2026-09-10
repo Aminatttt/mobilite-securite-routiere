@@ -3,11 +3,20 @@ import os
 from datetime import date
 from utils_log import creer_logger
 
+def trouver_racine_projet(depart):
+    dossier = depart
+    while dossier != os.path.dirname(dossier):
+        if os.path.exists(os.path.join(dossier, ".git")):
+            return dossier
+        dossier = os.path.dirname(dossier)
+    raise FileNotFoundError("Racine du projet introuvable")
+
 # --- Initialisation (logger + dossiers) ---
 dossier_script = os.path.dirname(os.path.abspath(__file__))
 logger = creer_logger("telecharger_baac", dossier_script)
 
-dossier_raw = os.path.join(dossier_script, "data", "raw", "baac")
+racine_projet = trouver_racine_projet(dossier_script)
+dossier_raw = os.path.join(racine_projet, "data", "raw", "baac")
 os.makedirs(dossier_raw, exist_ok=True)
 
 date_du_jour = date.today().isoformat()
@@ -35,7 +44,6 @@ for f in fichiers:
             if type_fichier in titre and annee in titre:
                 fichiers_baac.append(f)
 
-# Dédoublonnage
 vus = set()
 fichiers_baac_uniques = []
 for f in fichiers_baac:
