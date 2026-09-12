@@ -2,7 +2,7 @@
 
 - [x] **Phase 0 — Sourcing & faisabilité** → voir `PROJET/Catalogue_final.xlsx`
 - [x] **Phase 1 — Acquisition & stockage RAW** → voir `src/telecharger_*.py`
-- [ ] **Phase 2 — ETL & qualité** → voir `src/nettoyer_*.py` (en cours)
+- [x] **Phase 2 — ETL & qualité** → voir `src/nettoyer_*.py`
 - [ ] **Phase 3 — Intégration & modèle de données**
 - [ ] **Phase 4 — Analyse & data visualisation**
 - [ ] **Phase 5 — Intelligence artificielle**
