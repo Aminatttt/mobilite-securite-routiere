@@ -121,12 +121,12 @@ AUTRES_FICHIERS = {
         ";",
     ),
     "referentiel_geo": (
-        os.path.join(dossier_curated, "referentiel_geo_nettoye.csv"),
-        ",",
+        os.path.join(dossier_curated, "referentiel_geo_paris_clean.csv"),
+        ";",
     ),
     "meteo": (
-        os.path.join(dossier_curated, "meteo_nettoye.csv"),
-        ",",
+        os.path.join(dossier_curated, "meteo", "meteo_paris_reference_daily.csv"),
+        ";",
     ),
     "population": (
         os.path.join(dossier_curated, "population", "population_paris_2023.csv"),
@@ -150,8 +150,8 @@ def charger_autres():
 # ------------------------------------------------------------------
 # 3. Construction des clés
 # ------------------------------------------------------------------
-CANDIDATS_LAT = ["lat", "latitude", "y_wgs84", "Y"]
-CANDIDATS_LON = ["long", "lon", "longitude", "x_wgs84", "X"]
+CANDIDATS_LAT = ["lat", "latitude", "lat_wgs84", "y_wgs84", "Y"]
+CANDIDATS_LON = ["long", "lon", "lon_wgs84", "x_wgs84", "X"]
 
 # "t_debut" ajouté : le nouveau fichier trafic agrégé par semaine (24_1) n'a
 # plus de colonne "t_1h" horaire, mais une colonne "t_debut" (début de la
