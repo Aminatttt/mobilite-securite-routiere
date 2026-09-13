@@ -1,0 +1,49 @@
+===========================================================================
+RAPPORT TÂCHE 49 — MATRICE DE CORRÉLATIONS
+Date : 2026-09-13 23:39:28
+Source : data\mobilite_paris.db / FAIT_ACCIDENT_ENRICHI
+Échantillon : 9,132 lignes
+===========================================================================
+
+TOP 10 CORRÉLATIONS GLOBALES (Pearson)
+---------------------------------------------------------------------------
+  q_total                   - q_moyen                    r = +0.950  FORTE  positive (+)
+  meteo_temp_min            - meteo_temp_max             r = +0.845  FORTE  positive (+)
+  q_moyen                   - k_moyen                    r = +0.552  FORTE  positive (+)
+  q_total                   - k_moyen                    r = +0.536  FORTE  positive (+)
+  meteo_precipitations      - meteo_temp_min             r = +0.114  FAIBLE  positive (+)
+  meteo_precipitations      - meteo_temp_max             r = -0.070  FAIBLE  negative (-)
+  k_moyen                   - population                 r = -0.067  FAIBLE  negative (-)
+  q_total                   - meteo_temp_max             r = +0.065  FAIBLE  positive (+)
+  q_total                   - population                 r = +0.063  FAIBLE  positive (+)
+  q_moyen                   - population                 r = +0.059  FAIBLE  positive (+)
+
+TESTS DE SIGNIFICATIVITÉ (alpha = 0.05)
+---------------------------------------------------------------------------
+  q_total              - q_moyen               r=+nan (p=nan) ns    NON
+  meteo_temp_min       - meteo_temp_max        r=+0.845 (p=0.00e+00) ***   OUI
+  q_moyen              - k_moyen               r=+nan (p=nan) ns    NON
+  q_total              - k_moyen               r=+nan (p=nan) ns    NON
+  meteo_precipitations - meteo_temp_min        r=+0.114 (p=6.11e-28) ***   OUI
+  meteo_precipitations - meteo_temp_max        r=-0.070 (p=2.28e-11) ***   OUI
+  k_moyen              - population            r=+nan (p=nan) ns    NON
+  q_total              - meteo_temp_max        r=+nan (p=nan) ns    NON
+  q_total              - population            r=+nan (p=nan) ns    NON
+  q_moyen              - population            r=+nan (p=nan) ns    NON
+
+TOP RELATIONS CATÉGORIELLES (Cramér's V)
+---------------------------------------------------------------------------
+  jour_semaine              - is_weekend                 V = 1.000
+  jour_semaine              - mois                       V = 0.060
+  is_weekend                - mois                       V = 0.039
+
+INTERPRÉTATION
+---------------------------------------------------------------------------
+  |r| >= 0.7  : très forte
+  |r| >= 0.5  : forte
+  |r| >= 0.3  : modérée
+  |r| < 0.3  : faible
+
+  ATTENTION : corrélation != causalité.
+  ATTENTION : Cramér's V : 0 = aucune, 1 = parfaite
+  ATTENTION : VIF >= 10 -> redondance problématique

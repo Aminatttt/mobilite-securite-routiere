@@ -1,0 +1,16 @@
+var1,var2,pearson_r,pearson_p,spearman_r,spearman_p,significatif,etoiles
+q_total,q_moyen,,,,,NON,ns
+meteo_temp_min,meteo_temp_max,0.8452109014023743,0.0,0.8330690163414706,0.0,OUI,***
+q_moyen,k_moyen,,,,,NON,ns
+q_total,k_moyen,,,,,NON,ns
+meteo_precipitations,meteo_temp_min,0.11430529592082797,6.108467779877333e-28,0.12043535566401625,7.427977396859601e-31,OUI,***
+meteo_precipitations,meteo_temp_max,-0.06990043748628375,2.2770435582785805e-11,-0.128780847211331,4.504863532035663e-35,OUI,***
+k_moyen,population,,,,,NON,ns
+q_total,meteo_temp_max,,,,,NON,ns
+q_total,population,,,,,NON,ns
+q_moyen,population,,,,,NON,ns
+q_total,meteo_temp_min,,,,,NON,ns
+q_moyen,meteo_temp_max,,,,,NON,ns
+meteo_temp_min,population,0.038740559745520375,0.00021307397847795012,0.04211845037574588,5.670047785936103e-05,OUI,***
+q_moyen,meteo_temp_min,,,,,NON,ns
+meteo_temp_max,population,0.031045520380313628,0.003006569295269481,0.03014876853105708,0.003960108006631771,OUI,**
