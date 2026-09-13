@@ -181,7 +181,25 @@ def charger_curated_dans_sqlite():
                         renames[col] = "Num_Acc"
                     elif col.lower() == "num_veh":
                         renames[col] = "num_veh"
+                    elif col.lower() == "com":
+                        renames[col] = "com"
                 df.rename(columns=renames, inplace=True)
+
+        # ---------------------------------------------------------------
+        # CORRECTIF : normalisation du code commune INSEE ('com'), colonne
+        # standard du fichier BAAC caracteristiques. Clé fiable pour la
+        # jointure population (contrairement à GEO, clé spatiale lat_lon).
+        # Normalisée en TEXT zéro-paddé sur 5 chiffres (format INSEE).
+        # ---------------------------------------------------------------
+        if "com" in df_caract.columns:
+            com_num = pd.to_numeric(df_caract["com"], errors="coerce")
+            df_caract["com"] = com_num.apply(
+                lambda x: str(int(x)).zfill(5) if pd.notna(x) else None
+            )
+            print(f"  [DEBUG] com (code commune INSEE) : {df_caract['com'].notna().sum()} / {len(df_caract)}")
+        else:
+            df_caract["com"] = None
+            print("  [ATTENTION] Colonne 'com' absente de caracteristiques : jointure population par com impossible.")
 
         # Dérivation de GEO dans df_caract (virgule -> point, arrondi 4 décimales)
         if "lat" in df_caract.columns and "long" in df_caract.columns:
@@ -250,9 +268,59 @@ def charger_curated_dans_sqlite():
             charger_table(connexion, df_dim_geo, "DIM_GEO")
 
         # --- DIM_POPULATION ---
-        colonnes_pop = [c for c in ["GEO", "OBS_VALUE", "TIME_PERIOD"] if c in df_pop.columns]
+        # CORRECTIF : colonne code commune INSEE (ex: 'geo') et colonnes
+        # valeur/période (ex: 'obs_value', 'time_period') repérées de façon
+        # insensible à la casse. Ne garde que la période la plus récente et
+        # déduplique sur 'com' pour éviter de dupliquer des lignes lors de
+        # la jointure de la tâche 38.
+        if not df_pop.empty:
+            print(f"  [DEBUG] Colonnes population disponibles : {list(df_pop.columns)}")
+            col_insee_candidats = ["com", "geo", "codgeo", "code_insee", "insee_com", "code_commune"]
+            col_com = next((c for c in df_pop.columns if c.strip().lower() in col_insee_candidats), None)
+            col_obs = next((c for c in df_pop.columns if c.strip().lower() == "obs_value"), None)
+            col_periode = next((c for c in df_pop.columns if c.strip().lower() == "time_period"), None)
+            col_mesure = next((c for c in df_pop.columns if c.strip().lower() == "popref_measure_lib"), None)
+
+            renames = {}
+            if col_com and col_com != "com":
+                renames[col_com] = "com"
+            if col_obs:
+                renames[col_obs] = "OBS_VALUE"
+            if col_periode:
+                renames[col_periode] = "TIME_PERIOD"
+            df_pop = df_pop.rename(columns=renames)
+
+            if "com" in df_pop.columns:
+                com_pop_num = pd.to_numeric(df_pop["com"], errors="coerce")
+                df_pop["com"] = com_pop_num.apply(
+                    lambda x: str(int(x)).zfill(5) if pd.notna(x) else None
+                )
+
+            if col_mesure and df_pop[col_mesure].nunique() > 1:
+                mesures_dispo = df_pop[col_mesure].unique().tolist()
+                print(f"  [DEBUG] Plusieurs mesures population détectées : {mesures_dispo}")
+                if "Population totale" in mesures_dispo:
+                    df_pop = df_pop[df_pop[col_mesure] == "Population totale"]
+                    print("  [INFO] Population : mesure retenue = 'Population totale'")
+                else:
+                    print(f"  [ATTENTION] 'Population totale' absente ; mesure retenue au hasard "
+                          f"parmi {mesures_dispo} après déduplication — à vérifier en tâche 39.")
+
+            if "TIME_PERIOD" in df_pop.columns:
+                periode_max = df_pop["TIME_PERIOD"].max()
+                print(f"  [INFO] Population : {df_pop['TIME_PERIOD'].nunique()} période(s) détectée(s), "
+                      f"on retient la plus récente ({periode_max})")
+                df_pop = df_pop[df_pop["TIME_PERIOD"] == periode_max]
+
+        colonnes_pop = [c for c in ["com", "OBS_VALUE", "TIME_PERIOD"] if c in df_pop.columns]
         if colonnes_pop:
-            charger_table(connexion, df_pop[colonnes_pop].drop_duplicates(), "DIM_POPULATION")
+            df_dim_pop = df_pop[colonnes_pop].drop_duplicates(
+                subset=["com"] if "com" in colonnes_pop else None
+            )
+            charger_table(connexion, df_dim_pop, "DIM_POPULATION")
+        elif not df_pop.empty:
+            print(f"  ⚠️ DIM_POPULATION NON chargée — colonnes utiles absentes "
+                  f"parmi : {list(df_pop.columns)}")
 
         # --- DIM_METEO ---
         colonnes_meteo = [c for c in ["AAAAMMJJ", "RR", "TN", "TX", "TM"] if c in df_meteo.columns]
@@ -300,6 +368,12 @@ def charger_curated_dans_sqlite():
             )
 
         # --- DIM_TRAFIC ---
+        # CORRECTIF : la table gardait une ligne par (iu_ac, AAAAMMJJ), alors
+        # que la jointure de la tâche 38 se fait sur (iu_ac, annee_semaine)
+        # seul. Plusieurs jours dans la même semaine matchaient donc chacun
+        # une ligne FAIT_ACCIDENT, dupliquant des accidents dans
+        # FAIT_ACCIDENT_ENRICHI. On agrège désormais réellement au grain
+        # hebdomadaire avant chargement.
         if not df_trafic.empty:
             if "AAAAMMJJ" in df_trafic.columns:
                 dt_trafic = pd.to_datetime(
@@ -309,21 +383,19 @@ def charger_curated_dans_sqlite():
                 df_trafic["annee_semaine"] = (
                     iso_t["year"].astype(str) + "-" + iso_t["week"].astype(str).str.zfill(2)
                 )
-            df_trafic["grain_trafic"] = "hebdomadaire"
-            colonnes_trafic = [
-                c for c in [
-                    "iu_ac", "AAAAMMJJ", "annee_semaine",
-                    "q_total", "q_moyen", "k_moyen", "grain_trafic",
-                ] if c in df_trafic.columns
-            ]
-            if "AAAAMMJJ" in colonnes_trafic:
-                charger_table(
-                    connexion,
-                    df_trafic[colonnes_trafic].drop_duplicates(),
-                    "DIM_TRAFIC",
+            colonnes_mesures_trafic = [c for c in ["q_total", "q_moyen", "k_moyen"] if c in df_trafic.columns]
+            if "iu_ac" in df_trafic.columns and "annee_semaine" in df_trafic.columns and colonnes_mesures_trafic:
+                df_dim_trafic = (
+                    df_trafic
+                    .groupby(["iu_ac", "annee_semaine"], as_index=False)[colonnes_mesures_trafic]
+                    .mean()
                 )
+                df_dim_trafic["grain_trafic"] = "hebdomadaire"
+                print(f"  [INFO] DIM_TRAFIC agrégée au grain (iu_ac, annee_semaine) : "
+                      f"{len(df_trafic)} lignes source -> {len(df_dim_trafic)} lignes hebdo")
+                charger_table(connexion, df_dim_trafic, "DIM_TRAFIC")
             else:
-                print("  ⚠️ AAAAMMJJ absente de trafic : DIM_TRAFIC non chargée.")
+                print("  ⚠️ iu_ac/annee_semaine/mesures absents de trafic : DIM_TRAFIC non chargée.")
 
         # --- CORRECTIF : uniformiser iu_ac en TEXT partout (avant jointure) ---
         print("\n[INFO] Uniformisation du type iu_ac en TEXT...")
@@ -382,9 +454,10 @@ def charger_curated_dans_sqlite():
         df_fait.reset_index(drop=True, inplace=True)
         df_fait["id_fait"] = df_fait.index + 1
 
-        # Alignement strict sur les 15 colonnes du schéma
+        # Alignement strict sur les colonnes du schéma (+ 'com' pour la
+        # jointure population de la tâche 38)
         colonnes_fait = [
-            "id_fait", "Num_Acc", "id_usager", "AAAAMMJJ", "GEO", "iu_ac",
+            "id_fait", "Num_Acc", "id_usager", "AAAAMMJJ", "GEO", "com", "iu_ac",
             "lum", "atm", "col", "catu", "grav", "secu1", "secu2", "secu3", "catv",
         ]
 
@@ -395,6 +468,8 @@ def charger_curated_dans_sqlite():
         df_fait_final = df_fait[colonnes_fait]
 
         charger_table(connexion, df_fait_final, "FAIT_ACCIDENT")
+        print(f"  [DEBUG] com renseigné dans FAIT_ACCIDENT : "
+              f"{df_fait_final['com'].notna().sum()} / {len(df_fait_final)}")
 
         # =====================================================================
         # E. CORRECTIF : INJECTION DE iu_ac DANS FAIT_ACCIDENT
