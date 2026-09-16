@@ -1,0 +1,95 @@
+===========================================================================
+RAPPORT TÂCHES 52 + 53 — CIBLE + FEATURES
+Date : 2026-09-16 05:15:56
+Source : data\mobilite_paris.db / FAIT_ACCIDENT_ENRICHI
+Échantillon total : 9,132 lignes
+===========================================================================
+
+TÂCHE 52 — CIBLE BINAIRE 'GRAVE'
+---------------------------------------------------------------------------
+  Règle : grave = 1 si grav ∈ {2 (tué), 3 (blessé hosp.)}
+  Total lignes : 9,132
+  Cas graves   : 433 (4.7%)
+  Cas légers   : 8,699 (95.3%)
+  Ratio        : 1:20.1
+  Déséquilibre important → à traiter en tâche 57
+
+TÂCHE 53 — FEATURES
+---------------------------------------------------------------------------
+  Features finales : 27
+  Train : 7,519 lignes
+  Test  : 1,613 lignes
+  Taux grave (train) : 4.7%
+  Taux grave (test)  : 4.8%
+
+COLONNES EXCLUES (anti-fuite) :
+  Num_Acc
+  annee_semaine
+  categorie_usager
+  catu
+  com
+  date
+  equipement_secu1
+  equipement_secu2
+  equipement_secu3
+  grav
+  gravite
+  id_fait
+  id_usager
+  population_annee
+  secu1
+  secu2
+  secu3
+  type_collision
+
+FEATURES RETENUES (27) :
+  • is_pluie
+  • is_weekend
+  • is_ferie
+  • mois
+  • k_moyen
+  • jour
+  • population
+  • meteo_temp_min
+  • meteo_temp_moy
+  • jour_semaine_num
+  • q_moyen
+  • trimestre
+  • meteo_temp_max
+  • semaine_annee
+  • meteo_precipitations
+  • trafic_eleve
+  • annee
+  • ratio_saturation
+  • saison_ete
+  • saison_hiver
+  • saison_printemps
+  • jour_semaine_Monday
+  • jour_semaine_Saturday
+  • jour_semaine_Sunday
+  • jour_semaine_Thursday
+  • jour_semaine_Tuesday
+  • jour_semaine_Wednesday
+
+TOP FEATURES (Random Forest) :
+  population                     : 0.1687
+  k_moyen                        : 0.1256
+  q_moyen                        : 0.1206
+  ratio_saturation               : 0.1129
+  meteo_temp_min                 : 0.0678
+  meteo_temp_max                 : 0.0666
+  meteo_temp_moy                 : 0.0560
+  jour                           : 0.0506
+  semaine_annee                  : 0.0426
+  meteo_precipitations           : 0.0406
+  jour_semaine_num               : 0.0254
+  mois                           : 0.0219
+  trafic_eleve                   : 0.0164
+  jour_semaine_Wednesday         : 0.0124
+  jour_semaine_Thursday          : 0.0086
+
+NOTES
+---------------------------------------------------------------------------
+  Split aléatoire stratifié (une seule année)
+  La cible 'grave' est ABSENTE de X
+  Vérifier périodiquement les nouvelles colonnes

@@ -1,0 +1,4 @@
+modele,seuil,roc_auc,pr_auc,precision_grave,recall_grave,f1_grave,TN,FP,FN,TP
+1. Regression Logistique,0.5,0.5239,0.0564,0.0522,0.3718,0.0915,1008,527,49,29
+2. Gradient Boosting (brut),0.5,0.516,0.0513,0.0,0.0,0.0,1531,4,78,0
+3. Gradient Boosting + class_weight,0.5,0.4916,0.0529,0.0432,0.1026,0.0608,1358,177,70,8
